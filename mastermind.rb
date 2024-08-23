@@ -14,3 +14,21 @@ def getInputSequence
     retry
   end
 end
+
+def giveFeedback(original, try)
+  temp_og = original.clone
+  temp_try = try.clone
+  black = white = 0
+  temp_try.each_with_index do |num, idx|
+    if num == original[idx]
+      black += 1
+      temp_og[idx] = temp_try[idx] = nil
+    end
+  end
+  temp_try.each do |num|
+    if !num.nil? && temp_og.include?(num)
+      white += 1
+      temp_og[temp_og.index(num)] = nil
+    end
+  end
+end
