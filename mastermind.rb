@@ -2,7 +2,8 @@
 
 class Mastermind
   def initialize
-    print "Choose the code (1) or Find the code (2): "
+    puts "The codes are 4 characters long and each from 1 to 6"
+    print "Want to play Choose the code (1) or Find the code (2)? "
     mode = gets.chomp
     if mode == "1"
       chooseTheCode ? puts("The computer won!") : puts("The computer lost!")
@@ -28,6 +29,8 @@ class Mastermind
   end
 
   def giveFeedback(original, try)
+    original = original.clone
+    try = try.clone
     feedback = {black: 0, white: 0}
     try.each_with_index do |num, idx|
       if num == original[idx]
@@ -49,7 +52,7 @@ class Mastermind
     12.times do |x|
       x == 11 ? puts("1 try left") : puts("#{12 - x} tries left")
       try = getInputSequence
-      feedback = giveFeedback(original.clone, try.clone)
+      feedback = giveFeedback(original, try)
       return true if feedback[:black] == 4
 
       puts "Correct position  #{feedback[:black]}"
@@ -60,30 +63,19 @@ class Mastermind
 
   def chooseTheCode
     original = getInputSequence(true)
-    feedback = prev_try = nil
-    try = [1, 1, 1, 1]
-    idx = 0
-    12.times do |x|
-      x == 11 ? puts("1 try left") : puts("#{12 - x} tries left")
+    possible = (1..6).to_a.permutation(4).to_a
+    try = [1, 1, 2, 2]
+    12.times do |tries|
+      tries == 11 ? puts("1 try left") : puts("#{12 - tries} tries left")
       puts "Trying code #{try.join}\n\n"
-      feedback = giveFeedback(original.clone, try.clone)
+      feedback = giveFeedback(original, try)
       return true if feedback[:black] == 4
 
-      to_increase = 4 - feedback[:black] - feedback[:white]
-      if !to_increase.zero?
-        to_increase.times { |x| try[try.size - x - 1] += 1 }
-        prev_try = try.clone
-        prev_feedback = feedback
-      else
-        if prev_feedback[:black] > feedback[:black]
-          try = prev_try
-          feedback = prev_feedback
-        end
-        prev_try = try.clone
-        try[idx], try[idx + 1] = try[idx + 1], try[idx]
-        idx += 1
-        idx = 0 if idx == 4
+      possible.each do |code|
+        temp_feedback = giveFeedback(try, code)
+        possible.delete(code) if code == try || temp_feedback != feedback
       end
+      try = possible.sample
     end
     return false
   end
